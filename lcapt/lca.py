@@ -29,7 +29,7 @@ Parameter = torch.nn.parameter.Parameter
 Tensor = torch.Tensor
 
 
-class LCAConv(torch.nn.Module):
+class _LCAConvBase(torch.nn.Module):
     '''
     Base class for LCA models.
 
@@ -157,7 +157,7 @@ class LCAConv(torch.nn.Module):
         self._compute_padding()
         os.makedirs(self.result_dir, exist_ok=True)
         self._write_params(deepcopy(vars(self)))
-        super(LCAConv, self).__init__()
+        super(_LCAConvBase, self).__init__()
         self._init_weight_tensor()
         self.register_buffer('forward_pass', torch.tensor(1))
 
@@ -493,3 +493,18 @@ class LCAConv(torch.nn.Module):
                 h5file.create_dataset(
                     f'{name}_{self.forward_pass}_{lca_iter}',
                     data=tensor.detach().cpu().numpy())
+
+
+class LCAConv1D(_LCAConvBase):
+    def __init__(self):
+        super(LCAConv1D, self).__init__()
+
+
+class LCAConv2D(_LCAConvBase):
+    def __init__(self):
+        super(LCAConv2D, self).__init__()
+
+
+class LCAConv3D(_LCAConvBase):
+    def __init__(self):
+        super(LCAConv3D, self).__init__()
