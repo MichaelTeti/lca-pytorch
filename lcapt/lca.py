@@ -522,6 +522,13 @@ class LCAConv1D(_LCAConvBase):
             cudnn_benchmark, d_update_clip, lr_schedule, lca_write_step,
             forward_write_step, req_grad)
 
+    def _compute_inhib_pad(self) -> None:
+        ''' Computes padding for compute_lateral_connectivity '''
+        if self.kt % 2 != 0 or self.stride_t == 1:
+            self.lat_conn_pad = (self.kt - 1) // self.stride_t * self.stride_t
+        else:
+            self.lat_conn_pad = self.kt - self.stride_t
+
 
 class LCAConv2D(_LCAConvBase):
     def __init__(
@@ -565,6 +572,19 @@ class LCAConv2D(_LCAConvBase):
             samplewise_standardization, tau_decay_factor, lca_tol,
             cudnn_benchmark, d_update_clip, lr_schedule, lca_write_step,
             forward_write_step, req_grad)
+
+    def _compute_inhib_pad(self) -> None:
+        ''' Computes padding for compute_lateral_connectivity '''
+        pad = []
+        for kernel_size, stride in zip(
+                [self.kh, self.kw],
+                [self.stride_h, self.stride_w]):
+            if kernel_size % 2 != 0 or stride == 1:
+                pad.append((kernel_size - 1) // stride * stride)
+            else:
+                pad.append(kernel_size - stride)
+
+        self.lat_conn_pad = tuple(pad)
 
 
 class LCAConv3D(_LCAConvBase):
@@ -613,3 +633,16 @@ class LCAConv3D(_LCAConvBase):
             samplewise_standardization, tau_decay_factor, lca_tol,
             cudnn_benchmark, d_update_clip, lr_schedule, lca_write_step,
             forward_write_step, req_grad)
+
+    def _compute_inhib_pad(self) -> None:
+        ''' Computes padding for compute_lateral_connectivity '''
+        pad = []
+        for kernel_size, stride in zip(
+                [self.kt, self.kh, self.kw],
+                [self.stride_t, self.stride_h, self.stride_w]):
+            if kernel_size % 2 != 0 or stride == 1:
+                pad.append((kernel_size - 1) // stride * stride)
+            else:
+                pad.append(kernel_size - stride)
+
+        self.lat_conn_pad = tuple(pad)
