@@ -182,18 +182,7 @@ class _LCAConvBase(torch.nn.Module):
         pass
 
     def _compute_input_pad(self) -> None:
-        ''' Computes padding for forward convolution '''
-        if self.pad == 'same':
-            if self.kernel_odd:
-                self.input_pad = (0, (self.kh - 1) // 2, (self.kw - 1) // 2)
-            else:
-                raise NotImplementedError(
-                    "Even kh and kw implemented only for 'valid' padding.")
-        elif self.pad == 'valid':
-            self.input_pad = (0, 0, 0)
-        else:
-            raise ValueError("Values for pad can either be 'same' or 'valid', "
-                             f"but got {self.pad}.")
+        pass
 
     def _compute_padding(self) -> None:
         self._compute_input_pad()
@@ -504,6 +493,20 @@ class LCAConv1D(_LCAConvBase):
         else:
             self.lat_conn_pad = self.kt - self.stride_t
 
+    def _compute_input_pad(self) -> None:
+        ''' Computes padding for forward convolution '''
+        if self.pad == 'same':
+            if self.kt % 2 != 0:
+                self.input_pad = self.kt // 2
+            else:
+                raise NotImplementedError(
+                    "If kh and kw are even, pad must be 'valid'.")
+        elif self.pad == 'valid':
+            self.input_pad = 0
+        else:
+            raise ValueError("Values for pad can either be 'same' or 'valid', "
+                             f"but got {self.pad}.")
+
 
 class LCAConv2D(_LCAConvBase):
     def __init__(
@@ -553,6 +556,7 @@ class LCAConv2D(_LCAConvBase):
         assert all(even) or not any(even), (
                 'kh and kw should either both be even or both be odd, but '
                 f'kh={self.kh} and kw={self.kw}.')
+        self.kernel_odd = self.kh % 2 != 0
 
     def _compute_inhib_pad(self) -> None:
         ''' Computes padding for compute_lateral_connectivity '''
@@ -566,6 +570,20 @@ class LCAConv2D(_LCAConvBase):
                 pad.append(kernel_size - stride)
 
         self.lat_conn_pad = tuple(pad)
+
+    def _compute_input_pad(self) -> None:
+        ''' Computes padding for forward convolution '''
+        if self.pad == 'same':
+            if self.kernel_odd:
+                self.input_pad = (self.kh // 2, self.kw // 2)
+            else:
+                raise NotImplementedError(
+                    "If kh and kw are even, pad must be 'valid'.")
+        elif self.pad == 'valid':
+            self.input_pad = (0, 0, 0)
+        else:
+            raise ValueError("Values for pad can either be 'same' or 'valid', "
+                             f"but got {self.pad}.")
 
 
 class LCAConv3D(_LCAConvBase):
@@ -620,6 +638,7 @@ class LCAConv3D(_LCAConvBase):
         assert all(even) or not any(even), (
                 'kh, kt, and kw should either both be even or both be odd, '
                 f'but kh={self.kh}, kt={self.kt}, and kw={self.kw}.')
+        self.kernel_odd = self.kh % 2 != 0
 
     def _compute_inhib_pad(self) -> None:
         ''' Computes padding for compute_lateral_connectivity '''
@@ -633,3 +652,17 @@ class LCAConv3D(_LCAConvBase):
                 pad.append(kernel_size - stride)
 
         self.lat_conn_pad = tuple(pad)
+
+    def _compute_input_pad(self) -> None:
+        ''' Computes padding for forward convolution '''
+        if self.pad == 'same':
+            if self.kernel_odd:
+                self.input_pad = (self.kt // 2, self.kh // 2, self.kw // 2)
+            else:
+                raise NotImplementedError(
+                    "If kh, kt, and kw are even, pad must be 'valid'.")
+        elif self.pad == 'valid':
+            self.input_pad = (0, 0, 0)
+        else:
+            raise ValueError("Values for pad can either be 'same' or 'valid', "
+                             f"but got {self.pad}.")
