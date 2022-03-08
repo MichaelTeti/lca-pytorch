@@ -555,6 +555,12 @@ class LCAConv2D(_LCAConvBase):
             cudnn_benchmark, d_update_clip, lr_schedule, lca_write_step,
             forward_write_step, req_grad)
 
+    def _check_conv_params(self) -> None:
+        even = [ksize % 2 == 0 for ksize in [self.kh, self.kw]]
+        assert all(even) or not any(even), (
+                'kh and kw should either both be even or both be odd, but '
+                f'kh={self.kh} and kw={self.kw}.')
+
     def _compute_inhib_pad(self) -> None:
         ''' Computes padding for compute_lateral_connectivity '''
         pad = []
@@ -615,6 +621,12 @@ class LCAConv3D(_LCAConvBase):
             samplewise_standardization, tau_decay_factor, lca_tol,
             cudnn_benchmark, d_update_clip, lr_schedule, lca_write_step,
             forward_write_step, req_grad)
+
+    def _check_conv_params(self) -> None:
+        even = [ksize % 2 == 0 for ksize in [self.kt, self.kh, self.kw]]
+        assert all(even) or not any(even), (
+                'kh, kt, and kw should either both be even or both be odd, '
+                f'but kh={self.kh}, kt={self.kt}, and kw={self.kw}.')
 
     def _compute_inhib_pad(self) -> None:
         ''' Computes padding for compute_lateral_connectivity '''
