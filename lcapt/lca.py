@@ -153,9 +153,7 @@ class _LCAConvBase(torch.nn.Module):
 
     def assign_weight_values(self, tensor: Tensor) -> None:
         ''' Manually assign weight tensor '''
-        assert 3 <= len(tensor.shape) <= 5
         assert tensor.dtype == self.weights.dtype
-        tensor, _ = self._to_correct_input_shape(tensor)
         assert tensor.shape == self.weights.shape
         self.weights.copy_(tensor)
 
