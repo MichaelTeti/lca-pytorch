@@ -191,12 +191,13 @@ class _LCAConvBase(torch.nn.Module):
         return write
 
     def _check_conv_params(self) -> None:
-        assert ((self.kh % 2 != 0 and self.kw % 2 != 0)
-                or (self.kh % 2 == 0 and self.kw % 2 == 0)), (
-                'kh and kw should either both be even or both be odd numbers, '
-                f'but kh={self.kh} and kw={self.kw}.')
-        assert self.stride_h == 1 or self.stride_h % 2 == 0
-        assert self.stride_w == 1 or self.stride_w % 2 == 0
+        even = [ksize % 2 == 0 for ksize
+                in [self.kh, self.kw, self.kt] if ksize != 1]
+        assert all(even) or not any(even)
+        self.kernel_odd = not any(even)
+        even = [stride == 1 or stride % 2 == 0
+                for stride in [self.stride_h, self.stride_w, self.stride_t]]
+        assert all(even)
 
     def _compute_inhib_pad(self) -> None:
         ''' Computes padding for compute_lateral_connectivity '''
