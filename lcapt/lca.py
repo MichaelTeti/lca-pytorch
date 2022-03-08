@@ -118,8 +118,7 @@ class _LCAConvBase(torch.nn.Module):
         self.dtype = dtype 
         self.eta = eta 
         self.forward_write_step = forward_write_step
-        self.in_c = in_c 
-        self.kernel_odd = True if kh % 2 != 0 else False
+        self.in_c = in_c
         self.lambda_ = lambda_
         self.lca_iters = lca_iters 
         self.lca_tol = lca_tol
@@ -182,24 +181,7 @@ class _LCAConvBase(torch.nn.Module):
         pass
 
     def _compute_inhib_pad(self) -> None:
-        ''' Computes padding for compute_lateral_connectivity '''
-        self.lat_conn_pad = [0]
-
-        if self.kernel_odd or self.stride_h == 1:
-            self.lat_conn_pad.append((self.kh - 1)
-                                     // self.stride_h
-                                     * self.stride_h)
-        else:
-            self.lat_conn_pad.append(self.kh - self.stride_h)
-
-        if self.kernel_odd or self.stride_w == 1:
-            self.lat_conn_pad.append((self.kw - 1)
-                                     // self.stride_w
-                                     * self.stride_w)
-        else:
-            self.lat_conn_pad.append(self.kw - self.stride_w)
-
-        self.lat_conn_pad = tuple(self.lat_conn_pad)
+        pass
 
     def _compute_input_pad(self) -> None:
         ''' Computes padding for forward convolution '''
@@ -533,3 +515,15 @@ class LCA3DConv(_LCAConvBase):
         )
         assert all([stride == 1 or stride % 2 == 0
             for stride in [self.stride_h, self.stride_t, self.stride_w]])
+
+    def _compute_inhib_pad(self) -> None:
+        ''' Computes padding for compute_lateral_connectivity '''
+        pad = []
+        for ksize, stride in zip(
+                [self.kt, self.kh, self.kw],
+                [self.stride_t, self.stride_h, self.stride_w]):
+            if ksize % 2 != 0 or stride == 1:
+                pad.append((ksize - 1) // stride * stride)
+            else:
+                pad.append(ksize - stride)
+        self.lat_conn_pad = tuple(pad)
