@@ -157,7 +157,7 @@ class _LCAConvBase(torch.nn.Module):
         self._compute_padding()
         os.makedirs(self.result_dir, exist_ok=True)
         self._write_params(deepcopy(vars(self)))
-        super(_LCAConv, self).__init__()
+        super(_LCAConvBase, self).__init__()
         self._init_weight_tensor()
         self.register_buffer('forward_pass', torch.tensor(1))
 
