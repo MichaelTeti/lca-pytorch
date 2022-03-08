@@ -179,12 +179,7 @@ class _LCAConvBase(torch.nn.Module):
         return write
 
     def _check_conv_params(self) -> None:
-        assert ((self.kh % 2 != 0 and self.kw % 2 != 0)
-                or (self.kh % 2 == 0 and self.kw % 2 == 0)), (
-                'kh and kw should either both be even or both be odd numbers, '
-                f'but kh={self.kh} and kw={self.kw}.')
-        assert self.stride_h == 1 or self.stride_h % 2 == 0
-        assert self.stride_w == 1 or self.stride_w % 2 == 0
+        pass
 
     def _compute_inhib_pad(self) -> None:
         ''' Computes padding for compute_lateral_connectivity '''
@@ -529,3 +524,12 @@ class LCA3DConv(_LCAConvBase):
             samplewise_standardization, tau_decay_factor, lca_tol,
             cudnn_benchmark, d_update_clip, lr_schedule, lca_write_step,
             forward_write_step, req_grad)
+
+    def _check_conv_params(self) -> None:
+        even = [ksize % 2 == 0 for ksize in [self.kh, self.kt, self.kw]]
+        assert all(even) or not any(even), (
+            'kh, kt, and kw should all be even or all be odd numbers, but '
+            f'kh={self.kh} and kw={self.kw}.'
+        )
+        assert all([stride == 1 or stride % 2 == 0
+            for stride in [self.stride_h, self.stride_t, self.stride_w]])
