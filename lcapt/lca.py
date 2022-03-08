@@ -102,7 +102,7 @@ class _LCAConvBase(torch.nn.Module):
         tau: Union[float, int] = 1000,
         eta: float = 0.01,
         lca_iters: int = 3000,
-        pad: str = 'same',
+        pad: Union[str, int, tuple, list] = 'same',
         return_recon: bool = False,
         dtype: torch.dtype = torch.float32,
         nonneg: bool = True,
@@ -220,18 +220,7 @@ class _LCAConvBase(torch.nn.Module):
         self.lat_conn_pad = tuple(self.lat_conn_pad)
 
     def _compute_input_pad(self) -> None:
-        ''' Computes padding for forward convolution '''
-        if self.pad == 'same':
-            if self.kernel_odd:
-                self.input_pad = (0, (self.kh - 1) // 2, (self.kw - 1) // 2)
-            else:
-                raise NotImplementedError(
-                    "Even kh and kw implemented only for 'valid' padding.")
-        elif self.pad == 'valid':
-            self.input_pad = (0, 0, 0)
-        else:
-            raise ValueError("Values for pad can either be 'same' or 'valid', "
-                             f"but got {self.pad}.")
+        pass
 
     def _compute_padding(self) -> None:
         self._compute_input_pad()
@@ -512,7 +501,7 @@ class LCAConv3D(_LCAConvBase):
         tau: Union[float, int] = 1000,
         eta: float = 0.01,
         lca_iters: int = 3000,
-        pad: str = 'same',
+        pad: Union[str, int, tuple, list] = 'same',
         return_recon: bool = False,
         dtype: torch.dtype = torch.float32,
         nonneg: bool = True,
@@ -536,3 +525,23 @@ class LCAConv3D(_LCAConvBase):
             nonneg, track_metrics, transfer_func, samplewise_standardization,
             tau_decay_factor, lca_tol, cudnn_benchmark, d_update_clip,
             lr_schedule, lca_write_step, forward_write_step, req_grad)
+
+    def _compute_input_pad(self) -> None:
+        ''' Computes padding for forward convolution '''
+        if type(self.pad) == str:
+            if self.pad == 'same':
+                assert self.kernel_odd
+                self.input_pad = (self.kt // 2, self.kh // 2, self.kw // 2)
+            elif self.pad == 'valid':
+                self.input_pad = (0, 0, 0)
+            else:
+                raise ValueError("pad can either be 'valid' or 'same'.")
+        elif type(self.pad) in [tuple, list, int]:
+            assert self.kernel_odd
+            if type(self.pad) == int:
+                self.input_pad = (self.pad, ) * 3
+            elif type(self.pad) in [tuple, list]:
+                assert len(self.pad) == 3
+                self.input_pad = tuple(self.pad)
+        else:
+            raise NotImplementedError
