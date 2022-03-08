@@ -200,24 +200,7 @@ class _LCAConvBase(torch.nn.Module):
         assert all(even)
 
     def _compute_inhib_pad(self) -> None:
-        ''' Computes padding for compute_lateral_connectivity '''
-        self.lat_conn_pad = [0]
-
-        if self.kernel_odd or self.stride_h == 1:
-            self.lat_conn_pad.append((self.kh - 1)
-                                     // self.stride_h
-                                     * self.stride_h)
-        else:
-            self.lat_conn_pad.append(self.kh - self.stride_h)
-
-        if self.kernel_odd or self.stride_w == 1:
-            self.lat_conn_pad.append((self.kw - 1)
-                                     // self.stride_w
-                                     * self.stride_w)
-        else:
-            self.lat_conn_pad.append(self.kw - self.stride_w)
-
-        self.lat_conn_pad = tuple(self.lat_conn_pad)
+        pass
 
     def _compute_input_pad(self) -> None:
         pass
@@ -525,6 +508,30 @@ class LCAConv3D(_LCAConvBase):
             nonneg, track_metrics, transfer_func, samplewise_standardization,
             tau_decay_factor, lca_tol, cudnn_benchmark, d_update_clip,
             lr_schedule, lca_write_step, forward_write_step, req_grad)
+
+    def _compute_inhib_pad(self) -> None:
+        ''' Computes padding for compute_lateral_connectivity '''
+        pad = []
+        for ksize, stride in zip(
+                [self.kt, self.kh, self.kw],
+                [self.stride_t, self.stride_h, self.stride_w]):
+            if 
+
+        if self.kernel_odd or self.stride_h == 1:
+            self.lat_conn_pad.append((self.kh - 1)
+                                     // self.stride_h
+                                     * self.stride_h)
+        else:
+            self.lat_conn_pad.append(self.kh - self.stride_h)
+
+        if self.kernel_odd or self.stride_w == 1:
+            self.lat_conn_pad.append((self.kw - 1)
+                                     // self.stride_w
+                                     * self.stride_w)
+        else:
+            self.lat_conn_pad.append(self.kw - self.stride_w)
+
+        self.lat_conn_pad = tuple(self.lat_conn_pad)
 
     def _compute_input_pad(self) -> None:
         ''' Computes padding for forward convolution '''
