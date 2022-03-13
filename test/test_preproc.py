@@ -7,7 +7,6 @@ from lcapt.preproc import standardize_inputs
 
 
 class TestPreprocessing(unittest.TestCase):
-
     def test_standardize_inputs_raises_NotImplementedError(self):
         with self.assertRaises(NotImplementedError):
             standardize_inputs(torch.zeros(1, 2, 3, 4, 5, 6))
@@ -48,5 +47,5 @@ class TestPreprocessing(unittest.TestCase):
         self.assertEqual(type(outputs), torch.Tensor)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
