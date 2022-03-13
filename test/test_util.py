@@ -1,18 +1,12 @@
 import unittest
 
 import torch
-from  torch.testing import assert_close, make_tensor
+from torch.testing import assert_close, make_tensor
 
-from lcapt.util import (
-    to_3d_from_5d,
-    to_4d_from_5d,
-    to_5d_from_3d,
-    to_5d_from_4d
-)
+from lcapt.util import to_3d_from_5d, to_4d_from_5d, to_5d_from_3d, to_5d_from_4d
 
 
 class TestUtil(unittest.TestCase):
-
     def test_to_5d_from_3d_returns_correct_shape(self):
         inputs_3d = make_tensor((10, 3, 1000), None, torch.float32)
         inputs_5d = to_5d_from_3d(inputs_3d)
@@ -61,7 +55,6 @@ class TestUtil(unittest.TestCase):
         with self.assertRaises(AssertionError):
             to_4d_from_5d(inputs_4d)
             to_4d_from_5d(inputs_5d)
-        
 
     def test_to_3d_from_5d_returns_correct_shape(self):
         inputs_5d = make_tensor((10, 3, 100, 1, 1), None, torch.float32)
@@ -81,5 +74,5 @@ class TestUtil(unittest.TestCase):
             to_3d_from_5d(inputs_5d)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
