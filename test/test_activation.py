@@ -17,7 +17,6 @@ def create_test_input() -> Tensor:
 
 
 class TestActivations(unittest.TestCase):
-
     def test_hard_threshold_above_threshold(self):
         inputs = create_test_input()
         outputs = hard_threshold(inputs, 0.2, nonneg=False)
@@ -28,10 +27,12 @@ class TestActivations(unittest.TestCase):
         outputs = hard_threshold(inputs, 0.2)
         diff = outputs - inputs
         n_inputs = inputs.numel()
-        assert_close(inputs[n_inputs // 2:], outputs[n_inputs // 2:], rtol=0.0,
-                     atol=0.0)
-        assert_close(torch.zeros(n_inputs // 2), outputs[:n_inputs // 2],
-                     rtol=0.0, atol=0.0)
+        assert_close(
+            inputs[n_inputs // 2 :], outputs[n_inputs // 2 :], rtol=0.0, atol=0.0
+        )
+        assert_close(
+            torch.zeros(n_inputs // 2), outputs[: n_inputs // 2], rtol=0.0, atol=0.0
+        )
 
     def test_hard_threshold_below_threshold(self):
         inputs = torch.arange(-0.2, 0.21, 0.01)
@@ -68,11 +69,16 @@ class TestActivations(unittest.TestCase):
         outputs = soft_threshold(inputs, 0.2)
         diff = outputs - inputs
         n_inputs = inputs.numel()
-        expected = inputs[n_inputs // 2:]
-        assert_close(expected - 0.2 * expected.sign(), outputs[n_inputs // 2:],
-                     rtol=0.0, atol=0.0)
-        assert_close(torch.zeros(n_inputs // 2), outputs[:n_inputs // 2],
-                     rtol=0.0, atol=0.0)
+        expected = inputs[n_inputs // 2 :]
+        assert_close(
+            expected - 0.2 * expected.sign(),
+            outputs[n_inputs // 2 :],
+            rtol=0.0,
+            atol=0.0,
+        )
+        assert_close(
+            torch.zeros(n_inputs // 2), outputs[: n_inputs // 2], rtol=0.0, atol=0.0
+        )
 
     def test_soft_threshold_below_threshold(self):
         inputs = torch.arange(-0.2, 0.21, 0.01)
@@ -100,5 +106,5 @@ class TestActivations(unittest.TestCase):
         self.assertEqual(type(outputs), torch.Tensor)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
