@@ -8,12 +8,11 @@ from lcapt.metric import (
     compute_frac_active,
     compute_l1_sparsity,
     compute_l2_error,
-    compute_times_active_by_feature
+    compute_times_active_by_feature,
 )
 
 
 class TestMetrics(unittest.TestCase):
-
     def test_compute_frac_active_all_active(self):
         inputs = torch.ones(10, 100, 8, 8)
         frac_active = compute_frac_active(inputs)
@@ -28,13 +27,12 @@ class TestMetrics(unittest.TestCase):
         inputs_pos = torch.randn(10, 100, 8, 8)
         inputs_pos[inputs_pos.abs() < 0.5] = 0
         inputs_neg = inputs_pos * -1
-        assert_close(compute_frac_active(inputs_pos),
-                     compute_frac_active(inputs_neg))
+        assert_close(compute_frac_active(inputs_pos), compute_frac_active(inputs_neg))
 
     def test_compute_frac_active(self):
         inputs = torch.zeros(10, 1, 100)
         for ind in range(10):
-            inputs[ind, 0, :ind + 1] = ind + 1
+            inputs[ind, 0, : ind + 1] = ind + 1
             frac_active = compute_frac_active(inputs[ind])
             self.assertAlmostEqual(frac_active, (ind + 1) / 100)
 
@@ -56,8 +54,9 @@ class TestMetrics(unittest.TestCase):
         inputs_pos = torch.randn(1, 100, 8, 8)
         inputs_pos[inputs_pos.abs() < 0.5] = 0
         inputs_neg = inputs_pos * -1
-        assert_close(compute_l1_sparsity(inputs_pos, 1.0),
-                     compute_l1_sparsity(inputs_neg, 1.0))
+        assert_close(
+            compute_l1_sparsity(inputs_pos, 1.0), compute_l1_sparsity(inputs_neg, 1.0)
+        )
 
     def test_compute_l1_sparsity_different_lambdas(self):
         inputs = torch.randn(1, 100, 10, 10)
@@ -86,8 +85,7 @@ class TestMetrics(unittest.TestCase):
     def test_compute_l2_error_inputs_not_equal_to_recons(self):
         inputs = torch.zeros(3, 100, 10, 10)
         recons = torch.ones(3, 100, 10, 10)
-        assert_close(compute_l2_error(inputs, recons),
-                     0.5 * recons[0].norm(2)**2)
+        assert_close(compute_l2_error(inputs, recons), 0.5 * recons[0].norm(2) ** 2)
 
     def test_compute_l2_error_inputs_equal_recons(self):
         inputs = torch.randn(3, 10, 100, 100)
@@ -98,8 +96,7 @@ class TestMetrics(unittest.TestCase):
         inputs = torch.zeros(3, 10, 100, 100)
         recons = inputs * 1.0
         recons[:, 0, 0, 50] = 10
-        assert_close(compute_l2_error(inputs, recons),
-                     torch.tensor(50.0))
+        assert_close(compute_l2_error(inputs, recons), torch.tensor(50.0))
 
     def test_compute_l2_error_returns_same_data_type_as_inputs(self):
         for dtype in [torch.float16, torch.float32, torch.float64]:
@@ -143,10 +140,10 @@ class TestMetrics(unittest.TestCase):
     def test_compute_times_active_by_feature_variable_active(self):
         inputs = torch.zeros(1, 10, 100)
         for ind in range(10):
-            inputs[:, ind, :ind + 1] = torch.randn(1)
+            inputs[:, ind, : ind + 1] = torch.randn(1)
         times_active = compute_times_active_by_feature(inputs)
-        assert_close(times_active[:, 0, 0], torch.arange(1., 11.))
+        assert_close(times_active[:, 0, 0], torch.arange(1.0, 11.0))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
