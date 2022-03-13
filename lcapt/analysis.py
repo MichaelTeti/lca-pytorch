@@ -35,6 +35,8 @@ def _make_feature_grid_2D(weights: Tensor, scale_each: bool = False) -> Tensor:
 
 def _make_feature_grid_3D(weights: Tensor, scale_each: bool = False) -> Tensor:
     assert len(weights.shape) == 5
+    if weights.shape[2] == 1:
+        return _make_feature_grid_2D(weights[:, :, 0], scale_each)
     nrow = int(sqrt(weights.shape[0]))
     T = weights.shape[2]
     feat_grids = []
