@@ -6,14 +6,15 @@ Tensor = torch.Tensor
 
 
 def hard_threshold(x: Tensor, threshold: float, nonneg: bool = True) -> Tensor:
-    ''' Hard threshold transfer function '''
+    """Hard threshold transfer function"""
     if nonneg:
         return F.threshold(x, threshold, 0.0)
 
     return F.threshold(x, threshold, 0.0) - F.threshold(-x, threshold, 0.0)
 
+
 def soft_threshold(x: Tensor, threshold: float, nonneg: bool = True) -> Tensor:
-    ''' Soft threshold transfer function '''
+    """Soft threshold transfer function"""
     if nonneg:
         return F.relu(x - threshold)
 
